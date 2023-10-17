@@ -1,16 +1,27 @@
 import PropTypes from 'prop-types';
-import { Search } from './Filter.styled';
+import css from './Filter.module.css';
 
-export const Filter = ({ handleChange, value }) => {
-  return (
-    <>
-      <p>Find contacts by name</p>
-      <Search type="text" name="filtr" onChange={handleChange} value={value} />
-    </>
-  );
-};
+const Filter = ({ filterValue, onChange }) => (
+  <>
+    <label
+      htmlFor="filter-field"
+      className={`${css.filter__field} ${css.filter__field_label}`}
+    >
+      Find contacts by name
+      <input
+        id="filter-field"
+        className={css.filter__field_input}
+        type="text"
+        value={filterValue}
+        onChange={onChange}
+      />
+    </label>
+  </>
+);
 
 Filter.propTypes = {
-  handleChange: PropTypes.func.isRequired,
-  value: PropTypes.string.isRequired,
+  filterValue: PropTypes.string.isRequired,
+  onChange: PropTypes.func.isRequired,
 };
+
+export default Filter;

@@ -1,64 +1,81 @@
-import PropTypes from 'prop-types';
-import * as Yup from 'yup';
+import { useState } from 'react';
 import { nanoid } from 'nanoid';
-import { Formik } from 'formik';
-import { NewContact, Input, ErrCaption, Button } from './Contactform.styled';
+import PropTypes from 'prop-types';
+import css from './ContactForm.module.css';
 
-const uniqueId = {
-  name: nanoid(),
-  number: nanoid(),
-};
+export default function ContactForm({ onSubmit }) {
+  const [name, setName] = useState('');
+  const [number, setNumber] = useState('');
 
-const initialValue = {
-  name: '',
-  number: '',
-};
+  const handleChange = event => {
+    const { name, value } = event.target;
+    switch (name) {
+      case 'name':
+        setName(value);
+        break;
+      case 'number':
+        setNumber(value);
+        break;
+      default:
+        return;
+    }
+  };
 
-const phoneRegExp = '^[+]?[0-9\\.\\-\\s]{7,10}$';
+  const handleSubmit = event => {
+    event.preventDefault();
+    if (onSubmit({ id: nanoid(), name, number })) {
+      reset();
+    }
+  };
 
-const schema = Yup.object({
-  name: Yup.string().required(),
-  number: Yup.string()
-    .matches(phoneRegExp, 'Phone number is not valid')
-    .required(),
-});
-
-export const ContactForm = ({ handleSubmit }) => {
-  const onSubmit = (values, { resetForm }) => {
-    handleSubmit(values);
-    resetForm();
+  const reset = () => {
+    setName('');
+    setNumber('');
   };
 
   return (
-    <Formik
-      initialValues={initialValue}
-      onSubmit={onSubmit}
-      validationSchema={schema}
-    >
-      <NewContact>
-        <label htmlFor={uniqueId.name}>Name</label>
-        <Input
+    <form className={css.contactForm__form} onSubmit={handleSubmit}>
+      <label
+        htmlFor="name"
+        className={`${css.contactForm__field} ${css.contactForm__field_label}`}
+      >
+        Name:
+        <input
+          className={css.contactForm__input}
+          id="name"
           type="text"
-          id={uniqueId.name}
           name="name"
+          pattern="^[a-zA-Zа-яА-Я]+(([' -][a-zA-Zа-яА-Я ])?[a-zA-Zа-яА-Я]*)*$"
           title="Name may contain only letters, apostrophe, dash and spaces. For example Adrian, Jacob Mercer, Charles de Batz de Castelmore d'Artagnan"
           required
+          value={name}
+          onChange={handleChange}
         />
-        <ErrCaption name="name" component={'div'} />
-        <label htmlFor={uniqueId.number}>Number</label>
-        <Input
+      </label>
+      <label
+        htmlFor="number"
+        className={`${css.contactForm__field} ${css.contactForm__field_label}`}
+      >
+        Number:
+        <input
+          className={css.contactForm__input}
+          id="number"
           type="tel"
-          id={uniqueId.number}
           name="number"
+          pattern="\+?\d{1,4}?[-.\s]?\(?\d{1,3}?\)?[-.\s]?\d{1,4}[-.\s]?\d{1,4}[-.\s]?\d{1,9}"
           title="Phone number must be digits and can contain spaces, dashes, parentheses and can start with +"
+          required
+          value={number}
+          onChange={handleChange}
         />
-        <ErrCaption name="number" component={'div'} />
-        <Button type="submit">Add new contact</Button>
-      </NewContact>
-    </Formik>
+      </label>
+      <button type="submit" className={css.contactForm__submit_button}>
+        Add contact
+      </button>
+    </form>
   );
-};
+}
 
 ContactForm.propTypes = {
-  handleSubmit: PropTypes.func.isRequired,
+  onSubmit: PropTypes.func.isRequired,
 };
